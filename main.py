@@ -2,7 +2,9 @@ from datetime import datetime
 import os
 
 class DuplicateVisitorError(Exception):
-    pass
+    def __init__(self, visitor):
+        self.visitor = visitor
+        super().__init__(f"Visitor '{visitor}' has already visited." )
 
 class EarlyEntryError(Exception):
     pass
@@ -10,13 +12,31 @@ class EarlyEntryError(Exception):
 FILENAME = "visitors.txt"
 
 def ensure_file():
-    pass
+    try:
+        with open(FILENAME, "r") as f:
+            pass 
+    except FileNotFoundError:
+        print(f"File '{FILENAME}' not found. Creating the file now.")
+        with open(FILENAME, "w") as f:
+            pass
 
 def get_last_visitor():
-    pass
+    with open(FILENAME, "r") as f:
+        lines = f.readlines()
+        if lines:
+            return lines[-1].strip().split(" | ")[0] 
 
 def add_visitor(visitor_name):
-    pass
+    last_visitor = get_last_visitor()
+
+    if visitor_name == last_visitor:
+        raise DuplicateVisitorError(visitor_name)
+    
+    timestamp = datetime.now().isoformat()
+    entry = f"{visitor_name} | {timestamp}\n"
+
+    with open(FILENAME, "a") as f:
+        f.write(entry)
 
 def main():
     ensure_file()
